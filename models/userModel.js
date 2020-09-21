@@ -28,7 +28,6 @@ const userSchema = new mongoose.Schema({
     minlength: [4, 'A password must have more or equal then 4 characters'],
     select: false,
   },
-  passwordChangedAt: Date,
   passwordConfirm: {
     type: String,
     required: [true, 'Please confirm your password'],
@@ -38,6 +37,9 @@ const userSchema = new mongoose.Schema({
       },
       message: 'The password is not the same',
     },
+  },
+  passwordChangedAt: {
+    type: Date,
   },
 });
 
@@ -57,7 +59,11 @@ userSchema.methods.correctPassword = async function (
 
 userSchema.methods.changePasswordAfter = function (JWTTimestamp) {
   if (this.passwordChangedAt) {
-    console.log('a', this.passwordChangedAt, JWTTimestamp);
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+    return JWTTimestamp < changedTimestamp;
   }
   return false;
 };
