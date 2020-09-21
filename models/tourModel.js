@@ -1,27 +1,37 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 
 const tourSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'A tour must have a name.'],
+    required: [true, 'A tour must have a name'],
     unique: true,
     trim: true,
+    maxlength: [40, 'A tour name must have less or equal then 40 characters'],
+    minlength: [10, 'A tour name must have more or equal then 10 characters'],
+    // validate: [validator.isAlpha, 'The name must only contain characters'],
   },
   duration: {
     type: Number,
-    required: [true, 'A tour must have a darations.'],
+    required: [true, 'A tour must have a darations'],
   },
   maxGroupSize: {
     type: Number,
-    required: [true, 'A tour must have a maxGroupSize.'],
+    required: [true, 'A tour must have a maxGroupSize'],
   },
   difficulty: {
     type: String,
-    required: [true, 'A tour must have a difficulty.'],
+    required: [true, 'A tour must have a difficulty'],
+    enum: {
+      values: ['easy', 'medium', 'difficult'],
+      message: 'Difficulty is either: easy, medium, difficult',
+    },
   },
   ratingsAverage: {
     type: Number,
     default: 4.5,
+    min: [1, 'Rating must be above 1.0'],
+    max: [5, 'Rating must be below 5.0'],
   },
   ratingsQuantity: {
     type: Number,
@@ -29,13 +39,23 @@ const tourSchema = new mongoose.Schema({
   },
   price: {
     type: Number,
-    required: [true, 'A tour must have a price.'],
+    required: [true, 'A tour must have a price'],
   },
-  priceDiscount: Number,
+  priceDiscount: {
+    type: Number,
+    validate: {
+      validator: function (val) {
+        // "this" only points to current doc on new document creating
+        return val < this.price;
+      },
+      message: `Discount should less then price`,
+    },
+  },
+
   summary: {
     type: String,
     trim: true,
-    required: [true, 'A tour must have a summary.'],
+    required: [true, 'A tour must have a summary'],
   },
   description: {
     type: String,
@@ -43,7 +63,7 @@ const tourSchema = new mongoose.Schema({
   },
   imageCover: {
     type: String,
-    required: [true, 'A tour must have a image cover.'],
+    required: [true, 'A tour must have a image cover'],
   },
   images: [String],
   createdAt: {
