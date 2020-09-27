@@ -29,6 +29,7 @@ const userSchema = new mongoose.Schema({
       message: 'Role is either: user, guide, lead-guide, admin',
     },
     required: true,
+    default: 'user'
   },
   password: {
     type: String,
