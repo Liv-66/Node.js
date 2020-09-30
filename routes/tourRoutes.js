@@ -1,12 +1,15 @@
 const express = require('express');
 const tourController = require('../constrollers/tourController');
 const authController = require('../constrollers/authController');
-const reviewController = require('../constrollers/reviewController');
+const reviewRouter = require('./reviewRoutes');
 
 const router = express.Router();
 
 // Param Middleware
 // router.param('id', tourController.checkID);
+
+// app.use('/api/v1/reviews', reviewRouter);
+router.use('/:tourId/reviews', reviewRouter);
 
 router
   .route('/top-3-tours')
@@ -25,6 +28,5 @@ router
     authController.restrictTo('admin', 'lead-guide'),
     tourController.deleteTour
   );
-router.route('/:tourId/reviews').post(authController.protect, authController.restrictTo('user'), reviewController.creatReview);
 
 module.exports = router;

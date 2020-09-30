@@ -19,11 +19,11 @@ router.patch(
 router.patch('/updateMe', authController.protect, userController.updadeMe);
 router.delete('/deleteMe', authController.protect, userController.deleteMe);
 
-router.route('/').get(userController.getAllUser).post(userController.creatUser);
+router.route('/').get(userController.getAllUser)
 router
   .route('/:id')
   .get(userController.getUser)
-  .patch(userController.updateUser)
+  .patch(userController.notAllowUpdataPassword, userController.updateUser)
   .delete(userController.deleteUser);
 
 module.exports = router;
