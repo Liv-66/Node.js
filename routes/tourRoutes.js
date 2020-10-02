@@ -14,15 +14,30 @@ router.use('/:tourId/reviews', reviewRouter);
 router
   .route('/top-3-tours')
   .get(tourController.aliasTopThree, tourController.getAllTour);
-router.route('/monthly-tour/:year').get(tourController.getMonthlyNum);
+router
+  .route('/monthly-tour/:year')
+  .get(
+    authController.protect,
+    authController.restrictTo('admin', 'lead-guide', 'guide'),
+    tourController.getMonthlyNum
+  );
+
 router
   .route('/')
-  .get(authController.protect, tourController.getAllTour)
-  .post(tourController.creatTour);
+  .get(tourController.getAllTour)
+  .post(
+    authController.protect,
+    authController.restrictTo('admin', 'lead-guide'),
+    tourController.creatTour
+  );
 router
   .route('/:id')
   .get(tourController.getTour)
-  .patch(tourController.updateTour)
+  .patch(
+    authController.protect,
+    authController.restrictTo('admin', 'lead-guide'),
+    tourController.updateTour
+  )
   .delete(
     authController.protect,
     authController.restrictTo('admin', 'lead-guide'),
