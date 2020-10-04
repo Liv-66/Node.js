@@ -22,7 +22,7 @@ router.use(authController.restrictTo('admin'));
 
 router.route('/').get(userController.getAllUser);
 router
-  .route('/:id')
+  .route('/:id') 
   .get(userController.getUser)
   .patch(userController.notAllowUpdataPassword, userController.updateUser)
   .delete(userController.deleteUser);
