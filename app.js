@@ -1,6 +1,7 @@
 const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
@@ -25,6 +26,19 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Set security HTTP headers
 app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      baseUri: ["'self'"],
+      fontSrc: ["'self'", 'https:', 'data:'],
+      scriptSrc: ["'self'", 'https://*.cloudflare.com'],
+      objectSrc: ["'none'"],
+      styleSrc: ["'self'", 'https:', 'unsafe-inline'],
+      upgradeInsecureRequests: [],
+    },
+  })
+);
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -40,6 +54,7 @@ app.use('/api', limiter);
 
 // Body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
+app.use(cookieParser());
 
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());

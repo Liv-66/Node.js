@@ -5,8 +5,8 @@ const handleCastErrorDB = (err) => {
   return new AppError(message, 400);
 };
 
-const handleDuplicateFieldsDB = (err) => {
-  const regex = /\{(.+?)\}/g;
+const handleDuplicateFieldsDB = () => {
+  // const regex = /\{(.+?)\}/g;
   const name = 'Duplicate fields';
   const message = `Duplicate field value: ${name}. Please try another!`;
   return new AppError(message, 400);

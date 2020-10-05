@@ -59,6 +59,8 @@ exports.protect = catchAsync(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
   }
   if (!token) return next(new AppError('Please login', 401));
 
@@ -69,6 +71,23 @@ exports.protect = catchAsync(async (req, res, next) => {
     return next(new AppError('Password is changed, please try again!', 401));
   }
   req.user = currentUser;
+  next();
+});
+
+exports.isLogedIn = catchAsync(async (req, res, next) => {
+  if (req.cookies.jwt) {
+    const decoded = await promisify(jwt.verify)(
+      req.cookies.jwt,
+      process.env.JWT_SECRET
+    );
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser) return next();
+    if (currentUser.changePasswordAfter(decoded.iat)) return next();
+
+    // Pug => if user
+    res.locals.user = currentUser;
+    return next();
+  }
   next();
 });
 
