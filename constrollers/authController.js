@@ -20,13 +20,21 @@ const createSendToken = (user, statusCode, res) => {
     ),
     httpOnly: true,
   };
-  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  // if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
 
   user.password = undefined;
 
   res.cookie('jwt', token, cookieOptions);
 
   res.status(statusCode).json({ status: 'success', token, data: { user } });
+};
+
+exports.logout = (req, res) => {
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+  res.status(200).json({ status: 'success' });
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
@@ -74,22 +82,26 @@ exports.protect = catchAsync(async (req, res, next) => {
   next();
 });
 
-exports.isLogedIn = catchAsync(async (req, res, next) => {
-  if (req.cookies.jwt) {
-    const decoded = await promisify(jwt.verify)(
-      req.cookies.jwt,
-      process.env.JWT_SECRET
-    );
-    const currentUser = await User.findById(decoded.id);
-    if (!currentUser) return next();
-    if (currentUser.changePasswordAfter(decoded.iat)) return next();
+exports.isLogedIn = async (req, res, next) => {
+  try {
+    if (req.cookies.jwt) {
+      const decoded = await promisify(jwt.verify)(
+        req.cookies.jwt,
+        process.env.JWT_SECRET
+      );
+      const currentUser = await User.findById(decoded.id);
+      if (!currentUser) return next();
+      if (currentUser.changePasswordAfter(decoded.iat)) return next();
 
-    // Pug => if user
-    res.locals.user = currentUser;
+      // Pug => if user
+      res.locals.user = currentUser;
+      return next();
+    }
+  } catch (err) {
     return next();
   }
   next();
-});
+};
 
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
