@@ -7,6 +7,10 @@ const router = express.Router();
 router.post('/signup', authController.signup);
 router.post('/login', authController.login);
 router.get('/logout', authController.logout);
+
+
+
+
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
 
@@ -15,7 +19,12 @@ router.use(authController.protect);
 
 router.patch('/updatePassword', authController.updatePassword);
 router.get('/getMe', userController.getMe, userController.getUser);
-router.patch('/updateMe', userController.updadeMe);
+router.patch(
+  '/updateMe',
+  userController.uploadUserPhoto,
+  userController.resizeUserPhoto,
+  userController.updadeMe
+);
 router.delete('/deleteMe', userController.deleteMe);
 
 // Restrict to ADMIN
@@ -23,7 +32,7 @@ router.use(authController.restrictTo('admin'));
 
 router.route('/').get(userController.getAllUser);
 router
-  .route('/:id') 
+  .route('/:id')
   .get(userController.getUser)
   .patch(userController.notAllowUpdataPassword, userController.updateUser)
   .delete(userController.deleteUser);

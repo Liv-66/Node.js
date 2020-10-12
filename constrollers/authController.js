@@ -50,12 +50,11 @@ exports.signup = catchAsync(async (req, res, next) => {
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-  if (!email || !password)
-    return next(new AppError('Please input your email and password', 401));
+  if (!email || !password) return next(new AppError('請輸入E-mail及密碼', 401));
   const user = await User.findOne({ email }).select('+password');
 
   if (!user || !(await user.correctPassword(password, user.password)))
-    return next(new AppError('密碼錯誤, please try again', 401));
+    return next(new AppError('密碼錯誤, 請再試一次', 401));
 
   createSendToken(user, 200, res);
 });
@@ -79,6 +78,7 @@ exports.protect = catchAsync(async (req, res, next) => {
     return next(new AppError('Password is changed, please try again!', 401));
   }
   req.user = currentUser;
+  res.locals.user = currentUser;
   next();
 });
 

@@ -1,4 +1,4 @@
-/* eslint-disable*/
+/* eslint-disable */
 import axios from 'axios';
 import { showAlert } from './alert';
 
@@ -29,7 +29,7 @@ export const logout = async () => {
       method: 'GET',
       url: 'http://127.0.0.1:3000/api/v1/users/logout',
     });
-    if (res.data.status === 'success') location.reload(true);
+    if (res.data.status === 'success') location.replace('/login');
   } catch (err) {
     showAlert('error', 'error');
   }
